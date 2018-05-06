@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">CryptoListo-kotlin</string>
+
+
+
+
+
+
+
+
+
+
+<string name="intentCoinsListParceBundleName">coinMarketCapListResponse</string>
+
+
+
+
+
+
+
+
+    <string name="app_background_img">app_bg_img</string>
+</resources>
