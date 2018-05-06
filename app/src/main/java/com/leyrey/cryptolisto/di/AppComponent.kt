@@ -9,5 +9,5 @@ import javax.inject.Singleton
 @Singleton
 interface AppComponent {
 
-    fun inject(weatherSearchActivity: MainActivity)
+    fun inject(mainActivity: MainActivity)
 }

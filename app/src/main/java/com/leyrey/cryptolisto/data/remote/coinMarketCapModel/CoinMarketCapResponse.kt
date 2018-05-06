@@ -13,7 +13,7 @@ data class CoinMarketCapCoin(
         val circulating_supply: Int,
         val total_supply: Int,
         val max_supply: Int,
-        val quotes: Quote,
+        val quotes: List<Quote>,
         val last_updated: Int
 )
 

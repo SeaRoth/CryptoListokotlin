@@ -9,10 +9,14 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.leyrey.cryptolisto.R
+import com.leyrey.cryptolisto.R.id.*
 import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapCoin
 import com.leyrey.cryptolisto.domain.dto.CoinsDTO
 import com.leyrey.cryptolisto.ui.adapters.CoinsListAdapter
+import com.leyrey.cryptolisto.utils.InputValidator.isValidCoinInput
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -30,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        compositeDisposable.add(coinsObserver())
+        compositeDisposable.add(setupSearchCoinsObserver())
         compositeDisposable.add(setupInternetConnectionObserver())
 
     }
@@ -45,6 +49,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val coinsDTO = Parcels.unwrap<CoinsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
         setRecyclerView(coinsDTO)
+
+        val itemInputNameObservable = RxTextView.textChanges(autocomplete_textView)
+                .map { inputText: CharSequence -> inputText.isEmpty() || !isValidCoinInput(inputText.toString()) }
+                .distinctUntilChanged()
+        compositeDisposable.add(setupTextInputObserver(itemInputNameObservable))
+
         setupSearchListener()
     }
 
@@ -66,8 +76,16 @@ class MainActivity : AppCompatActivity() {
             else{
                 processRequestStartUI()
                 //val searchedCityName = autocomplete_textView.text.toString()
-                coinsObserver()?.let { it -> compositeDisposable.add(it) }
+                setupSearchCoinsObserver()?.let { it -> compositeDisposable.add(it) }
             }
+        }
+    }
+
+    private fun setupTextInputObserver(itemInputNameObservable: Observable<Boolean>): Disposable {
+        return itemInputNameObservable.subscribe { inputIsEmpty: Boolean ->
+            til_autocomplete.error = getString(R.string.invalid_input)
+            til_autocomplete.isErrorEnabled = inputIsEmpty
+            search_button?.isEnabled = !inputIsEmpty
         }
     }
 
@@ -77,17 +95,27 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
     }
 
-    private fun resolveRequestEndUI(){
-        Log.i("sdf","ended")
+    private fun resolveRequestEndUI() {
+        ll_search_coins.isEnabled = true
+        ll_search_coins.alpha = 1f
+        progressBar.visibility = View.INVISIBLE
     }
 
-    private fun coinsObserver(): Disposable? {
+    private fun setupSearchCoinsObserver(): Disposable {
         return viewModel.getCoins()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                    { coins: ArrayList<CoinMarketCapCoin>? ->
-                        _coins = coins!!
+                    { coins: List<CoinMarketCapCoin>? ->
+                        _coins.clear()
+
+                        coins!!.forEach { _coins.add(it) }
+
+
+
+
+
+
                         Log.i(TAG, "I think we have the coins")
                         resolveRequestEndUI()
                     },
