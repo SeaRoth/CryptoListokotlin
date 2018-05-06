@@ -6,7 +6,7 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 
 interface CoinMarketCapRepository{
-    fun getCoins(): Flowable<List<CoinMarketCapCoin>>
+    fun getCoins(): Flowable<ArrayList<CoinMarketCapCoin>>
 
     fun getCoin(id: String): Single<CoinsDTO>?
 }

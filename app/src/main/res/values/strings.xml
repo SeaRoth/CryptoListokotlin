@@ -12,6 +12,9 @@
 
 <string name="intentCoinsListParceBundleName">coinMarketCapListResponse</string>
 
+    <string name="no_internet">There\'s no internet</string>
+    <string name="error_fetching">Error fetching from API</string>
+
 
 
 

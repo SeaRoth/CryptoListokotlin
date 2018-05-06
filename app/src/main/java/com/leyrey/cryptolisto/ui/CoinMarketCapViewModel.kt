@@ -9,6 +9,8 @@ class CoinMarketCapViewModel @Inject constructor(val coinRepository: CoinMarketC
 
     fun getCoins() = coinRepository.getCoins()
 
-    fun getCoinDetails(id: Int) = coinRepository.getCoin(id)
+    fun getCoinDetails(id: String) = coinRepository.getCoin(id)
+
+
 
 }
