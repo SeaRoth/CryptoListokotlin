@@ -5,7 +5,7 @@ import com.leyrey.cryptolisto.data.repository.CoinMarketCapRepository
 import org.parceler.Repository
 import javax.inject.Inject
 
-class CoinMarketCapViewModel @Inject constructor(val coinRepository: CoinMarketCapRepository) : ViewModel() {
+class CoinMarketCapViewModel @Inject constructor(private val coinRepository: CoinMarketCapRepository) : ViewModel() {
 
     fun getCoins() = coinRepository.getCoins()
 

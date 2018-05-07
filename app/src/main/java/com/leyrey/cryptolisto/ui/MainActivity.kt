@@ -12,9 +12,13 @@ import android.widget.Toast
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.leyrey.cryptolisto.R
+import com.leyrey.cryptolisto.R.id.*
+import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapCoin
+import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapResponse
 import com.leyrey.cryptolisto.data.room.CoinEntity
 import com.leyrey.cryptolisto.di.CoinApplication
-import com.leyrey.cryptolisto.domain.dto.CoinDetailsDTO
+import com.leyrey.cryptolisto.domain.dto.CoinListDTO
+import com.leyrey.cryptolisto.ui.adapters.CoinsListAdapter
 import com.leyrey.cryptolisto.utils.InputValidator.isValidCoinInput
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -38,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        compositeDisposable.add(setupSearchCoinsObserver())
+        //compositeDisposable.add(setupSearchCoinsObserver())
         compositeDisposable.add(setupInternetConnectionObserver())
 
     }
@@ -56,8 +60,8 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(CoinMarketCapViewModel::class.java)
 
 
-        val coinsDTO = Parcels.unwrap<CoinDetailsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
-//        setRecyclerView(coinsDTO)
+        val coinsDTO = Parcels.unwrap<CoinListDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
+        setRecyclerView(coinsDTO)
 
         val itemInputNameObservable = RxTextView.textChanges(autocomplete_textView)
                 .map { inputText: CharSequence -> inputText.isEmpty() || !isValidCoinInput(inputText.toString()) }
@@ -67,14 +71,14 @@ class MainActivity : AppCompatActivity() {
         setupSearchListener()
     }
 
-    private fun setRecyclerView(ourDTO: CoinDetailsDTO) {
-//        val coinList = ourDTO.coins as ArrayList<CoinMarketCapCoin>
-//        val adapter: CoinsListAdapter? = CoinsListAdapter(coinList)
+    private fun setRecyclerView(ourDTO: CoinListDTO) {
+        val coinList = ourDTO.coins as ArrayList<CoinMarketCapCoin>
+        val adapter: CoinsListAdapter? = CoinsListAdapter(coinList)
         val mLayoutManager = LinearLayoutManager(applicationContext)
         recyclerViewCoinList.layoutManager = mLayoutManager
         recyclerViewCoinList.itemAnimator = DefaultItemAnimator()
         recyclerViewCoinList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
-//        recyclerViewCoinList.adapter = adapter
+        recyclerViewCoinList.adapter = adapter
     }
 
     private fun setupSearchListener() {
@@ -83,8 +87,18 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
             } else {
                 processRequestStartUI()
-                //val searchedCityName = autocomplete_textView.text.toString()
-                setupSearchCoinsObserver()?.let { it -> compositeDisposable.add(it) }
+                //val coinToSearch = autocomplete_textView.text.toString()
+                //setupSearchCoinsObserver().let { it -> compositeDisposable.add(it) }
+
+                viewModel.getCoins()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { coinMarketCapResponse: CoinListDTO? ->
+                            resolveRequestEndUI()
+                            Log.i(TAG, "We might have the coins");
+                        }
+                    )
             }
         }
     }
@@ -109,28 +123,28 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.INVISIBLE
     }
 
-    private fun setupSearchCoinsObserver(): Disposable {
-        return viewModel.getCoins()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { coins: List<CoinEntity>? ->
-                            _coinNames.clear()
-                            coins!!.forEach { _coinNames.add(it.symbol) }
-                            Log.i(TAG, "I think we have the coins")
-                            resolveRequestEndUI()
-                        },
-                        { throwable: Throwable? ->
-                            resolveRequestEndUI()
-                            if (!isConnectedToInternet) {
-                                Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
-                            } else {
-                                throwable?.printStackTrace()
-                                Toast.makeText(this, getString(R.string.error_fetching), Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                )
-    }
+//    private fun setupSearchCoinsObserver(): Disposable {
+//        return viewModel.getCoins()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(
+//                        { coins: List<CoinEntity>? ->
+//                            _coinNames.clear()
+//                            coins!!.forEach { _coinNames.add(it.symbol) }
+//                            Log.i(TAG, "I think we have the coins")
+//                            resolveRequestEndUI()
+//                        },
+//                        { throwable: Throwable? ->
+//                            resolveRequestEndUI()
+//                            if (!isConnectedToInternet) {
+//                                Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
+//                            } else {
+//                                throwable?.printStackTrace()
+//                                Toast.makeText(this, getString(R.string.error_fetching), Toast.LENGTH_SHORT).show()
+//                            }
+//                        }
+//                )
+//    }
 
     private fun setupInternetConnectionObserver(): Disposable {
         return ReactiveNetwork.observeInternetConnectivity()
