@@ -3,7 +3,7 @@ package com.leyrey.cryptolisto.data.room
 import android.arch.persistence.room.*
 import android.content.Context
 
-@Database(entities = arrayOf(CoinEntity::class), version = 1)
+@Database(entities = [CoinEntity::class], version = 1)
 abstract class RoomDataSource : RoomDatabase() {
 
     abstract fun coinSearchDao(): CoinsDao

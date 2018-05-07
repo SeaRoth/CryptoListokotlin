@@ -1,9 +1,7 @@
 package com.leyrey.cryptolisto.data.repository
 
 import com.leyrey.cryptolisto.data.remote.RemoteCoinMarketCapDataSource
-import com.leyrey.cryptolisto.data.remote.RemoteCoinMarketCapService
 import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapCoin
-import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapResponse
 import com.leyrey.cryptolisto.data.room.RoomDataSource
 import com.leyrey.cryptolisto.domain.dto.CoinsDTO
 import io.reactivex.Flowable
@@ -29,8 +27,6 @@ class CoinMarketCapRepositoryImpl @Inject constructor(
     override fun getCoins(): Flowable<List<CoinMarketCapCoin>> {
         return roomDataSource.coinSearchDao().getAllCoins()
     }
-
-
 
 
 }

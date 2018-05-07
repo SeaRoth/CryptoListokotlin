@@ -1,5 +1,6 @@
 package com.leyrey.cryptolisto.ui
 
+import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
@@ -23,9 +24,12 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import org.parceler.Parcels
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var coinMarketCapViewModelFactory: CoinMarketCapViewModelFactory
     private var TAG = "MainActivity"
     private lateinit var viewModel: CoinMarketCapViewModel
     private var isConnectedToInternet: Boolean = false
@@ -47,6 +51,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        viewModel = ViewModelProviders.of(this, coinMarketCapViewModelFactory).get(CoinMarketCapViewModel::class.java)
+
         val coinsDTO = Parcels.unwrap<CoinsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
         setRecyclerView(coinsDTO)
 
