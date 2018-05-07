@@ -1,5 +1,6 @@
 package com.leyrey.cryptolisto.ui
 
+import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.DefaultItemAnimator
@@ -13,6 +14,8 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.leyrey.cryptolisto.R
 import com.leyrey.cryptolisto.R.id.*
 import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapCoin
+import com.leyrey.cryptolisto.data.room.CoinEntity
+import com.leyrey.cryptolisto.di.CoinApplication
 import com.leyrey.cryptolisto.domain.dto.CoinsDTO
 import com.leyrey.cryptolisto.ui.adapters.CoinsListAdapter
 import com.leyrey.cryptolisto.utils.InputValidator.isValidCoinInput
@@ -23,13 +26,17 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import org.parceler.Parcels
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
     private var TAG = "MainActivity"
+
+    @Inject
+    lateinit var viewModelFactory: CoinMarketCapViewModelFactory
     private lateinit var viewModel: CoinMarketCapViewModel
     private var isConnectedToInternet: Boolean = false
-    private var _coins = ArrayList<CoinMarketCapCoin>()
+    private var _coinNames = ArrayList<String>()
     private var compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     override fun onStart() {
@@ -47,6 +54,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        CoinApplication.appComponent.inject(this)
+        viewModel = ViewModelProviders.of(this,viewModelFactory).get(CoinMarketCapViewModel::class.java)
+
+
+
         val coinsDTO = Parcels.unwrap<CoinsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
         setRecyclerView(coinsDTO)
 
@@ -106,16 +119,9 @@ class MainActivity : AppCompatActivity() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                    { coins: List<CoinMarketCapCoin>? ->
-                        _coins.clear()
-
-                        coins!!.forEach { _coins.add(it) }
-
-
-
-
-
-
+                    { coins: List<CoinEntity>? ->
+                        _coinNames.clear()
+                        coins!!.forEach { _coinNames.add(it.symbol) }
                         Log.i(TAG, "I think we have the coins")
                         resolveRequestEndUI()
                     },
