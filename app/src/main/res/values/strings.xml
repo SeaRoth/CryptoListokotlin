@@ -2,24 +2,13 @@
     <string name="app_name">CryptoListo-kotlin</string>
 
 
-
-
-
-
-
-
-
-
-<string name="intentCoinsListParceBundleName">coinMarketCapListResponse</string>
+    <string name="intentCoinsListParceBundleName">coinMarketCapListResponse</string>
 
     <string name="no_internet">There\'s no internet</string>
     <string name="error_fetching">Error fetching from API</string>
 
 
-
     <string name="invalid_input">Invalid coin name</string>
-
-
 
 
     <string name="app_background_img">app_bg_img</string>

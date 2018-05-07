@@ -8,4 +8,3 @@ import org.parceler.ParcelConstructor
 data class CoinDetailsDTO @ParcelConstructor constructor(val id: Int,
                                                          val name: String
 )
-

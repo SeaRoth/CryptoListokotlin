@@ -7,7 +7,7 @@ import java.util.*
 object TransformersDTO{
     fun transformToWeatherDetailsDTO(coinName: String, coinResponse: CoinMarketCapResponse?): CoinDetailsDTO {
         return CoinDetailsDTO(
-                id = coinResponse?.coins?.first()?.id!!,
+                id = coinResponse!!.data[0].id,
             name = coinName
         )
     }
