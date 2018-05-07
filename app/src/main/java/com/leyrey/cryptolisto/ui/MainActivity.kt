@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
 
         val coinsDTO = Parcels.unwrap<CoinDetailsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
-        setRecyclerView(coinsDTO)
+//        setRecyclerView(coinsDTO)
 
         val itemInputNameObservable = RxTextView.textChanges(autocomplete_textView)
                 .map { inputText: CharSequence -> inputText.isEmpty() || !isValidCoinInput(inputText.toString()) }
