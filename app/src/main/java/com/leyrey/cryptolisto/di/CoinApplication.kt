@@ -2,20 +2,21 @@ package com.leyrey.cryptolisto.di
 
 import android.app.Application
 
-class CoinApplication : Application(){
+class CoinApplication : Application() {
     companion object {
         lateinit var appComponent: AppComponent
     }
 
-    override fun onCreate(){
+    override fun onCreate() {
         super.onCreate()
         initializeDagger()
     }
 
-    fun initializeDagger(){
+    fun initializeDagger() {
         appComponent = DaggerAppComponent.builder()
-            .appModule(AppModule(this))
-            .roomModule(RoomModule())
-                .remoteModule(RemoteModule()).build()
+                .appModule(AppModule(this))
+                .roomModule(RoomModule())
+                .remoteModule(RemoteModule())
+                .build()
     }
 }

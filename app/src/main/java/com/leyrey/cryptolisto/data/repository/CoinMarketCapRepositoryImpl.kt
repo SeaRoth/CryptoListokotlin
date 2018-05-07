@@ -25,14 +25,6 @@ class CoinMarketCapRepositoryImpl @Inject constructor(
     }
 
     override fun getCoins(): Flowable<List<CoinEntity>> {
-        //return roomDataSource.coinSearchDao().getAllCoins()
-
-
-
-
+        return roomDataSource.coinSearchDao().getAllCoins()
     }
-
-
-
-
 }

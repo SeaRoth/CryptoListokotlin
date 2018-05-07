@@ -1,8 +1,8 @@
 package com.leyrey.cryptolisto.ui
 
 import android.arch.lifecycle.ViewModelProviders
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -12,12 +12,9 @@ import android.widget.Toast
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.leyrey.cryptolisto.R
-import com.leyrey.cryptolisto.R.id.*
-import com.leyrey.cryptolisto.data.remote.coinMarketCapModel.CoinMarketCapCoin
 import com.leyrey.cryptolisto.data.room.CoinEntity
 import com.leyrey.cryptolisto.di.CoinApplication
-import com.leyrey.cryptolisto.domain.dto.CoinsDTO
-import com.leyrey.cryptolisto.ui.adapters.CoinsListAdapter
+import com.leyrey.cryptolisto.domain.dto.CoinDetailsDTO
 import com.leyrey.cryptolisto.utils.InputValidator.isValidCoinInput
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -56,12 +53,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         CoinApplication.appComponent.inject(this)
-        viewModel = ViewModelProviders.of(this,viewModelFactory).get(CoinMarketCapViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(CoinMarketCapViewModel::class.java)
 
 
-
-        val coinsDTO = Parcels.unwrap<CoinsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
-        setRecyclerView(coinsDTO)
+        val coinsDTO = Parcels.unwrap<CoinDetailsDTO>(intent.getParcelableExtra(getString(R.string.intentCoinsListParceBundleName)))
+//        setRecyclerView(coinsDTO)
 
         val itemInputNameObservable = RxTextView.textChanges(autocomplete_textView)
                 .map { inputText: CharSequence -> inputText.isEmpty() || !isValidCoinInput(inputText.toString()) }
@@ -71,22 +67,21 @@ class MainActivity : AppCompatActivity() {
         setupSearchListener()
     }
 
-    private fun setRecyclerView(ourDTO: CoinsDTO){
-        val coinList = ourDTO.coins as ArrayList<CoinMarketCapCoin>
-        val adapter: CoinsListAdapter? = CoinsListAdapter(coinList)
+    private fun setRecyclerView(ourDTO: CoinDetailsDTO) {
+//        val coinList = ourDTO.coins as ArrayList<CoinMarketCapCoin>
+//        val adapter: CoinsListAdapter? = CoinsListAdapter(coinList)
         val mLayoutManager = LinearLayoutManager(applicationContext)
         recyclerViewCoinList.layoutManager = mLayoutManager
         recyclerViewCoinList.itemAnimator = DefaultItemAnimator()
         recyclerViewCoinList.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
-        recyclerViewCoinList.adapter = adapter
+//        recyclerViewCoinList.adapter = adapter
     }
 
     private fun setupSearchListener() {
         search_button.setOnClickListener {
             if (!isConnectedToInternet) {
                 Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
-            }
-            else{
+            } else {
                 processRequestStartUI()
                 //val searchedCityName = autocomplete_textView.text.toString()
                 setupSearchCoinsObserver()?.let { it -> compositeDisposable.add(it) }
@@ -116,43 +111,43 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSearchCoinsObserver(): Disposable {
         return viewModel.getCoins()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                    { coins: List<CoinEntity>? ->
-                        _coinNames.clear()
-                        coins!!.forEach { _coinNames.add(it.symbol) }
-                        Log.i(TAG, "I think we have the coins")
-                        resolveRequestEndUI()
-                    },
-                    { throwable: Throwable? ->
-                        resolveRequestEndUI()
-                        if (!isConnectedToInternet) {
-                            Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
-                        } else {
-                            throwable?.printStackTrace()
-                            Toast.makeText(this, getString(R.string.error_fetching), Toast.LENGTH_SHORT).show()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { coins: List<CoinEntity>? ->
+                            _coinNames.clear()
+                            coins!!.forEach { _coinNames.add(it.symbol) }
+                            Log.i(TAG, "I think we have the coins")
+                            resolveRequestEndUI()
+                        },
+                        { throwable: Throwable? ->
+                            resolveRequestEndUI()
+                            if (!isConnectedToInternet) {
+                                Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
+                            } else {
+                                throwable?.printStackTrace()
+                                Toast.makeText(this, getString(R.string.error_fetching), Toast.LENGTH_SHORT).show()
+                            }
                         }
-                    }
-            )
+                )
     }
 
     private fun setupInternetConnectionObserver(): Disposable {
         return ReactiveNetwork.observeInternetConnectivity()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                    { isConnected: Boolean? ->
-                        isConnected?.let {
-                            if (!isConnected)
-                                Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
-                            isConnectedToInternet = isConnected
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { isConnected: Boolean? ->
+                            isConnected?.let {
+                                if (!isConnected)
+                                    Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
+                                isConnectedToInternet = isConnected
+                            }
+                        },
+                        { t: Throwable? ->
+                            Log.v("ReactiveNetwork", t?.message)
                         }
-                    },
-                    { t: Throwable? ->
-                        Log.v("ReactiveNetwork", t?.message)
-                    }
-            )
+                )
     }
 
 }
