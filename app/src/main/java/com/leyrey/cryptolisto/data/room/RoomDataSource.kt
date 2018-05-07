@@ -13,9 +13,9 @@ abstract class RoomDataSource : RoomDatabase() {
         @Volatile private var INSTANCE: RoomDataSource? = null
 
         fun getInstance(context: Context): RoomDataSource =
-                INSTANCE ?: synchronized(this) {
-                    INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
-                }
+            INSTANCE ?: synchronized(this) {
+                INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
+            }
 
         private fun buildDatabase(context: Context) =
                 Room.databaseBuilder(context.applicationContext,

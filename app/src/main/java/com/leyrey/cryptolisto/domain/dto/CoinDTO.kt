@@ -5,6 +5,7 @@ import org.parceler.Parcel
 import org.parceler.ParcelConstructor
 
 @Parcel(Parcel.Serialization.BEAN)
-data class CoinsDTO @ParcelConstructor constructor(
-        val coins: ArrayList<CoinMarketCapCoin>
+data class CoinDetailsDTO @ParcelConstructor constructor(val id: Int,
+                                                         val name: String
 )
+

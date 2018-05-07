@@ -1,7 +1,7 @@
 package com.leyrey.cryptolisto.data.remote.coinMarketCapModel
 
 data class CoinMarketCapResponse(
-        val coins: List<CoinMarketCapCoin>
+        val data: List<CoinMarketCapCoin>
 )
 
 data class CoinMarketCapCoin(
@@ -13,7 +13,7 @@ data class CoinMarketCapCoin(
         val circulating_supply: Int,
         val total_supply: Int,
         val max_supply: Int,
-        val quotes: List<Quote>,
+        val quotes: Quote,
         val last_updated: Int
 )
 
